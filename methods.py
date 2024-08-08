@@ -7,20 +7,22 @@ from sklearn.metrics.pairwise import cosine_similarity
 
 def load_data():
     # Load the 20-newsgroups dataset
-    newsgroups = fetch_20newsgroups(subset='all')
+    newsgroups = fetch_20newsgroups(subset="all")
     data = newsgroups.data
 
     return data
+
 
 newsgroups = load_data()
 
 documents = [newsgroups]
 
+
 def prepare_data():
     # Compute TF-IDF matrix for documents
-    vectorizer = TfidfVectorizer(stop_words='english')
+    vectorizer = TfidfVectorizer(stop_words="english")
     tfidf_matrix = vectorizer.fit_transform(newsgroups)
-    
+
     return tfidf_matrix, vectorizer
 
 
@@ -40,14 +42,14 @@ def rank_doc(input_word):
         ranked_scores = [cosine_similarities[i] for i in ranked_indices]
 
         # # Convert results to a DataFrame for better visualization
-        results_df = pd.DataFrame({
-            'Document': ranked_documents[:5],
-            'Score': ranked_scores[:5]
-        })
+        results_df = pd.DataFrame(
+            {"Document": ranked_documents[:5], "Score": ranked_scores[:5]}
+        )
 
         return results_df
     except Exception as e:
         raise e
+
 
 def add_document_text(document):
     try:

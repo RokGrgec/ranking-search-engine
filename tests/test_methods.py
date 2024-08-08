@@ -7,12 +7,15 @@ def test_load_data():
     data = load_data()
     assert data
 
+
 def test_prepare_data():
     tfidf_matrix, vectorizer = prepare_data()
     assert vectorizer
 
+
 def test_rank_doc():
     pass
+
 
 def test_add_document_text():
     dummy_doc = Document(text="Dummy text.")
