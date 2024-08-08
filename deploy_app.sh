@@ -1,7 +1,7 @@
 #!/bin/bash
-
 # Build the Docker image
-docker-compose build
+docker build -t ranking-search-engine_web .
 
 # Run the Docker container
-docker-compose up -d
+docker run -d --name fastapi-container -p 8000:80 ranking-search-engine_web
+
