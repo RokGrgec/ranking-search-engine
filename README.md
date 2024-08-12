@@ -36,7 +36,7 @@ uvicorn main:app --reload
 
 - The application will be accessible at http://127.0.0.1:8000/
 
-## Standalone app instalation
+## Deploying application in Docker
 1. **Clone the repository**:
     ```bash
     git clone https://github.com/RokGrgec/ranking-search-engine.git
