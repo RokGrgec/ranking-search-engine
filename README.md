@@ -54,4 +54,4 @@ uvicorn main:app --reload
 4. **Clean stack**
     ```bash
     bash ./clean_app.sh
-    ```# ranking-search-engine
+    ```
