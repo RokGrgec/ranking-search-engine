@@ -4,6 +4,11 @@ import typing as tp
 from sklearn.datasets import fetch_20newsgroups
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
+import scipy
+import logging
+
+logging.basicConfig(level=logging.INFO, filename='app.log', filemode='a', format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
 
 
 def load_data() -> tp.List[str]:
@@ -19,27 +24,56 @@ def load_data() -> tp.List[str]:
 
 
 newsgroups = load_data()
+current_documents_len = len(newsgroups)
 
 documents = newsgroups
+vectorizer = TfidfVectorizer(stop_words="english")
 
 
-def prepare_data() -> tp.Tuple:
+def prepare_data():
     """
     prepare_data computes TF-IDF matrix for documents and returns
-    a tuple of tfidf_matrix and vectorizer
+    a tfidf_matrix
     """
     # Compute TF-IDF matrix for documents
     try:
-        vectorizer = TfidfVectorizer(stop_words="english")
         # example of tfidf_matrix
         # array(['and', 'document', 'one',
         # 'second', 'the', 'third','this'], ...)
         tfidf_matrix = vectorizer.fit_transform(documents)
 
-        return tfidf_matrix, vectorizer
+        return tfidf_matrix
     except Exception as e:
         raise e
 
+# prepare initial tfidf_matrix based on 20newsgroup dataset
+tfidf_matrix = prepare_data()
+
+def check_for_document_len_updates(documents, current_documents_len):
+    '''
+    check_for_document_len_updates checks for any document
+    additions to the initial 20newsgroup documents dateset
+    and returns True if there is new additions, False if not
+    '''
+    if len(documents) > current_documents_len:
+        doc_len_lamda = len(documents) - current_documents_len
+        current_documents_len += doc_len_lamda
+        return True
+    return False
+
+def update_documents_matrix(new_document, tfidf_matrix):
+    '''
+    update_documents_matrix joins tfidf_matrix with newly
+    created matrix based on newly added document
+    '''
+    new_tfidf_matrix = vectorizer.fit_transform(new_document)
+
+    # Stack matrices horizontally (column wise) using hstack().
+    # https://stackoverflow.com/a/63456961/8753568
+    updated_tfidf = scipy.sparse.hstack([tfidf_matrix, new_tfidf_matrix])
+    
+    # update hardcoded tfidf_matrix to latest state
+    tfidf_matrix = updated_tfidf
 
 def rank_doc(input_str: str) -> pd.DataFrame:
     """
@@ -49,8 +83,10 @@ def rank_doc(input_str: str) -> pd.DataFrame:
     method returns data as dataframe
     """
     try:
-        tfidf_matrix, vectorizer = prepare_data()
-
+        if check_for_document_len_updates(documents, current_documents_len):
+            logger.info("if entered")
+            update_documents_matrix(documents[-1], tfidf_matrix)
+        
         # Define a query and transform it using the same vectorizer
         query_vec = vectorizer.transform([input_str])
 
